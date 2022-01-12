@@ -55,16 +55,22 @@ public:
 
     //==============================================================================
     static juce::AudioProcessorValueTreeState::ParameterLayout
-      createParameterLayout();
+        createParameterLayout();
 
     juce::AudioProcessorValueTreeState apvts {
-      *this,
-      nullptr,
-      "Parameters",
-      createParameterLayout()
+        *this,
+        nullptr,
+        "Parameters",
+        createParameterLayout()
     };
 
 private:
+    //==============================================================================
+    juce::dsp::DryWetMixer<float> dryWet;
+    juce::dsp::Gain<float> preGain;
+    juce::dsp::WaveShaper<float> clipper;
+    juce::dsp::Gain<float> postGain;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)
 };
