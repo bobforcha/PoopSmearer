@@ -166,7 +166,8 @@ bool PoopSmearerAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* PoopSmearerAudioProcessor::createEditor()
 {
-    return new PoopSmearerAudioProcessorEditor (*this);
+    // return new PoopSmearerAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -183,6 +184,38 @@ void PoopSmearerAudioProcessor::setStateInformation (const void* data, int sizeI
     // whose contents will have been created by the getStateInformation() call.
 }
 
+//==============================================================================
+juce::AudioProcessorValueTreeState::ParameterLayout
+    PoopSmearerAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Drive",
+        "Drive",
+        0.f,
+        10.f,
+        0.f
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Tone",
+        "Tone",
+        0.f,
+        10.f,
+        5.f
+    ));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>(
+        "Level",
+        "Level",
+        0.f,
+        10.f,
+        0.f
+    ));
+
+    return layout;
+}
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
