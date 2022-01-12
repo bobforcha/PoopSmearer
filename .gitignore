@@ -1,0 +1,6 @@
+# Editor files
+**/.vscode
+
+# Project files
+**/Builds
+**/JuceLibraryCode
