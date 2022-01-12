@@ -100,9 +100,20 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
 
+    preGain.prepare(spec);
+    clipper.prepare(spec);
+    postGain.prepare(spec);
+    clipHpf.prepare(spec);
+
+    //  Get settings
+    auto chainSettings = getChainSettings(apvts);
+
+    // Set wet mix proportion
     dryWet.setWetMixProportion(0.5f);
 
-    preGain.setGainDecibels(30.f);
+    // set clipper pre-gain with Drive param
+    auto preGainVal = juce::jmap<float>(chainSettings.drive, 21.f, 41.f);
+    preGain.setGainDecibels(preGainVal);
 
     clipper.functionToUse = [] (float x)
     {
@@ -111,9 +122,13 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 
     postGain.setGainDecibels(-20.f);
 
-    preGain.prepare(spec);
-    clipper.prepare(spec);
-    postGain.prepare(spec);
+    auto clipHpfCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(
+        720.f,
+        sampleRate,
+        1
+    );
+
+    clipHpf.coefficients = *clipHpfCoefficients[0];
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -176,21 +191,36 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     //     // ..do something to the data...
     // }
 
+    // Get settings
+    auto chainSettings = getChainSettings(apvts);
+
+    // Cook variables
+    
+    // set clipper pre-gain with Drive param
+    auto preGainVal = juce::jmap<float>(chainSettings.drive, 21.f, 41.f);
+    preGain.setGainDecibels(preGainVal);
+
+    // Get block to process
     juce::dsp::AudioBlock<float> block(buffer);
 
     auto monoBlock = block.getSingleChannelBlock(0);
-    auto dryBlock = block.getSingleChannelBlock(0);
+    auto dryBlock = monoBlock; // create dry copy of block
 
     dryWet.pushDrySamples(dryBlock);
 
-
+    // Create processing context for wet block
     juce::dsp::ProcessContextReplacing<float> monoContext(monoBlock);
 
+    // Process wet block and get output
     preGain.process(monoContext);
     clipper.process(monoContext);
     postGain.process(monoContext);
+    clipHpf.process(monoContext);
 
-    dryWet.mixWetSamples(monoBlock);
+    auto wetBlock = monoContext.getOutputBlock();
+
+    // Mix dry and wet blocks
+    dryWet.mixWetSamples(wetBlock);
 }
 
 //==============================================================================
@@ -220,6 +250,17 @@ void PoopSmearerAudioProcessor::setStateInformation (const void* data, int sizeI
 }
 
 //==============================================================================
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    ChainSettings settings;
+
+    settings.drive = apvts.getRawParameterValue("Drive")->load();
+    settings.tone = apvts.getRawParameterValue("Tone")->load();
+    settings.level = apvts.getRawParameterValue("Level")->load();
+
+    return settings; 
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout
     PoopSmearerAudioProcessor::createParameterLayout()
 {

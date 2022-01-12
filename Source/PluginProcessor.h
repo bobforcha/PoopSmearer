@@ -13,6 +13,13 @@
 //==============================================================================
 /**
 */
+struct ChainSettings
+{
+    float drive { 0 }, tone { 0 }, level { 0 };
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
 class PoopSmearerAudioProcessor  : public juce::AudioProcessor
 {
 public:
@@ -70,6 +77,7 @@ private:
     juce::dsp::Gain<float> preGain;
     juce::dsp::WaveShaper<float> clipper;
     juce::dsp::Gain<float> postGain;
+    juce::dsp::IIR::Filter<float> clipHpf;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)
