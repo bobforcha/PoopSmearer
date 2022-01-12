@@ -100,6 +100,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
 
+    dryWet.prepare(spec);
     preGain.prepare(spec);
     clipper.prepare(spec);
     postGain.prepare(spec);
@@ -195,7 +196,7 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     auto chainSettings = getChainSettings(apvts);
 
     // Cook variables
-    
+
     // set clipper pre-gain with Drive param
     auto preGainVal = juce::jmap<float>(chainSettings.drive, 21.f, 41.f);
     preGain.setGainDecibels(preGainVal);
