@@ -95,6 +95,23 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    juce::dsp::ProcessSpec spec;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = 1;
+    spec.sampleRate = sampleRate;
+
+    preGain.setGainDecibels(30.f);
+
+    clipper.functionToUse = [] (float x)
+    {
+        return std::tanh(x);
+    };
+
+    postGain.setGainDecibels(-20.f);
+
+    preGain.prepare(spec);
+    clipper.prepare(spec);
+    postGain.prepare(spec);
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -150,12 +167,21 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    // for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // {
+    //     auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
-    }
+    //     // ..do something to the data...
+    // }
+    juce::dsp::AudioBlock<float> block(buffer);
+
+    auto monoBlock = block.getSingleChannelBlock(0);
+
+    juce::dsp::ProcessContextReplacing<float> monoContext(monoBlock);
+
+    preGain.process(monoContext);
+    clipper.process(monoContext);
+    postGain.process(monoContext);
 }
 
 //==============================================================================
