@@ -100,6 +100,8 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
 
+    dryWet.setWetMixProportion(0.5f);
+
     preGain.setGainDecibels(30.f);
 
     clipper.functionToUse = [] (float x)
@@ -173,15 +175,22 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
     //     // ..do something to the data...
     // }
+
     juce::dsp::AudioBlock<float> block(buffer);
 
     auto monoBlock = block.getSingleChannelBlock(0);
+    auto dryBlock = block.getSingleChannelBlock(0);
+
+    dryWet.pushDrySamples(dryBlock);
+
 
     juce::dsp::ProcessContextReplacing<float> monoContext(monoBlock);
 
     preGain.process(monoContext);
     clipper.process(monoContext);
     postGain.process(monoContext);
+
+    dryWet.mixWetSamples(monoBlock);
 }
 
 //==============================================================================
