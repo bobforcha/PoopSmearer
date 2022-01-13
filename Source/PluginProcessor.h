@@ -73,12 +73,18 @@ public:
 
 private:
     //==============================================================================
+    // signal splitter
     juce::dsp::DryWetMixer<float> dryWet;
+    
+    // clipper components
     juce::dsp::Gain<float> preGain;
     juce::dsp::WaveShaper<float> clipper;
     juce::dsp::Gain<float> postGain;
     juce::dsp::IIR::Filter<float> clipHpf;
     juce::dsp::IIR::Filter<float> clipLpf;
+
+    // main LPF
+    juce::dsp::IIR::Filter<float> mainLpf;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)

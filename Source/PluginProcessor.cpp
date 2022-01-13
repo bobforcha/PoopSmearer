@@ -106,6 +106,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     postGain.prepare(spec);
     clipHpf.prepare(spec);
     clipLpf.prepare(spec);
+    mainLpf.prepare(spec);
 
     //  Get settings
     auto chainSettings = getChainSettings(apvts);
@@ -114,7 +115,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     dryWet.setWetMixProportion(0.5f);
 
     // set clipper pre-gain with Drive param
-    auto preGainVal = juce::jmap<float>(chainSettings.drive, 21.f, 41.f);
+    auto preGainVal = juce::jmap<float>(chainSettings.drive, 0.f, 10.f, 21.f, 41.f);
     preGain.setGainDecibels(preGainVal);
 
     clipper.functionToUse = [] (float x)
@@ -135,12 +136,23 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     clipHpf.coefficients = *clipHpfCoefficients[0];
 
     // initialize the clipper LPF using Drive param
-    auto clipLpfFreq = juce::jmap<float>(1.f - chainSettings.drive, 5600.f, 61200.f);
+    auto clipLpfFreq = juce::jmap<float>(10.f - chainSettings.drive, 0.0, 10.f, 5600.f, 20000.f);
     auto clipLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
         clipLpfFreq,
         sampleRate,
         1
     );
+
+    clipLpf.coefficients = *clipLpfCoefficients[0];
+
+    // initialize the main LPF
+    auto mainLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        723.4f,
+        sampleRate,
+        1
+    );
+
+    mainLpf.coefficients = *mainLpfCoefficients[0];
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -209,16 +221,21 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     // Cook variables
 
     // set clipper pre-gain with Drive param
-    auto preGainVal = juce::jmap<float>(chainSettings.drive, 21.f, 41.f);
+    // printf("drive from settings: %f\n", chainSettings.drive);
+    auto preGainVal = juce::jmap<float>(chainSettings.drive, 0.f, 10.f, 21.f, 41.f);
+    // printf("preGainVal: %f\n", preGainVal);
     preGain.setGainDecibels(preGainVal);
 
     // set clipper LPF frequency using Drive param
-    auto clipLpfFreq = juce::jmap<float>(1.f - chainSettings.drive, 5600.f, 61200.f);
+    auto clipLpfFreq = juce::jmap<float>(10.f - chainSettings.drive, 0.f, 10.f, 5600.f, 20000.f);
+    // printf("cutoff freq: %f\n", clipLpfFreq);
     auto clipLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
         clipLpfFreq,
         getSampleRate(),
         1
     );
+
+    clipLpf.coefficients = *clipLpfCoefficients[0];
 
     // Get block to process
     juce::dsp::AudioBlock<float> block(buffer);
@@ -237,6 +254,7 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     postGain.process(monoContext);
     clipHpf.process(monoContext);
     clipLpf.process(monoContext);
+    mainLpf.process(monoContext);
 
     auto wetBlock = monoContext.getOutputBlock();
 
