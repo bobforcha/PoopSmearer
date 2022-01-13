@@ -86,8 +86,11 @@ private:
     // main LPF
     juce::dsp::IIR::Filter<float> mainLpf;
 
-    //  tone LPF
+    // tone LPF
     juce::dsp::IIR::Filter<float> toneLpf;
+
+    // level gain
+    juce::dsp::Gain<float> level;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)

@@ -108,6 +108,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     clipLpf.prepare(spec);
     mainLpf.prepare(spec);
     toneLpf.prepare(spec);
+    level.prepare(spec);
 
     //  Get settings
     auto chainSettings = getChainSettings(apvts);
@@ -162,6 +163,10 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         sampleRate,
         1
     );
+
+    // initialize level gain with Level param
+    auto levelGainDb = juce::jmap<float>(chainSettings.level, 0.f, 10.f, -20.f, 20.f);
+    level.setGainDecibels(levelGainDb);
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -254,6 +259,10 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         1
     );
 
+    // set level gain with Level param
+    auto levelGainDb = juce::jmap<float>(chainSettings.level, 0.f, 10.f, -20.f, 20.f);
+    level.setGainDecibels(levelGainDb);
+
     // Get block to process
     juce::dsp::AudioBlock<float> block(buffer);
 
@@ -273,6 +282,7 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     clipLpf.process(monoContext);
     mainLpf.process(monoContext);
     toneLpf.process(monoContext);
+    level.process(monoContext);
 
     auto wetBlock = monoContext.getOutputBlock();
 
@@ -328,7 +338,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout
         "Drive",
         juce::NormalisableRange<float>(
             0.f, 10.f, 0.1f, 1.f),
-        0.f
+        5.f
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
@@ -344,7 +354,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout
         "Level",
         juce::NormalisableRange<float>(
             0.f, 10.f, 0.1f, 1.f),
-        0.f
+        5.f
     ));
 
     return layout;
