@@ -78,6 +78,7 @@ private:
     juce::dsp::WaveShaper<float> clipper;
     juce::dsp::Gain<float> postGain;
     juce::dsp::IIR::Filter<float> clipHpf;
+    juce::dsp::IIR::Filter<float> clipLpf;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)

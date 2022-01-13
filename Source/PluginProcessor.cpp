@@ -105,6 +105,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     clipper.prepare(spec);
     postGain.prepare(spec);
     clipHpf.prepare(spec);
+    clipLpf.prepare(spec);
 
     //  Get settings
     auto chainSettings = getChainSettings(apvts);
@@ -121,8 +122,10 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         return std::tanh(x);
     };
 
+    // set clipper post-gain to fixed -20 dB
     postGain.setGainDecibels(-20.f);
 
+    // initialize clipper HPF at 720 Hz
     auto clipHpfCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(
         720.f,
         sampleRate,
@@ -130,6 +133,14 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     );
 
     clipHpf.coefficients = *clipHpfCoefficients[0];
+
+    // initialize the clipper LPF using Drive param
+    auto clipLpfFreq = juce::jmap<float>(1.f - chainSettings.drive, 5600.f, 61200.f);
+    auto clipLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        clipLpfFreq,
+        sampleRate,
+        1
+    );
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -201,6 +212,14 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     auto preGainVal = juce::jmap<float>(chainSettings.drive, 21.f, 41.f);
     preGain.setGainDecibels(preGainVal);
 
+    // set clipper LPF frequency using Drive param
+    auto clipLpfFreq = juce::jmap<float>(1.f - chainSettings.drive, 5600.f, 61200.f);
+    auto clipLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        clipLpfFreq,
+        getSampleRate(),
+        1
+    );
+
     // Get block to process
     juce::dsp::AudioBlock<float> block(buffer);
 
@@ -217,6 +236,7 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     clipper.process(monoContext);
     postGain.process(monoContext);
     clipHpf.process(monoContext);
+    clipLpf.process(monoContext);
 
     auto wetBlock = monoContext.getOutputBlock();
 
@@ -270,24 +290,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         "Drive",
         "Drive",
-        0.f,
-        10.f,
+        juce::NormalisableRange<float>(
+            0.f, 10.f, 0.1f, 1.f),
         0.f
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         "Tone",
         "Tone",
-        0.f,
-        10.f,
+        juce::NormalisableRange<float>(
+            0.f, 10.f, 0.1f, 1.f),
         5.f
     ));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         "Level",
         "Level",
-        0.f,
-        10.f,
+        juce::NormalisableRange<float>(
+            0.f, 10.f, 0.1f, 1.f),
         0.f
     ));
 
