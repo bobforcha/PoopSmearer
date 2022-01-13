@@ -101,14 +101,16 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     spec.sampleRate = sampleRate;
 
     dryWet.prepare(spec);
-    preGain.prepare(spec);
-    clipper.prepare(spec);
-    postGain.prepare(spec);
-    clipHpf.prepare(spec);
-    clipLpf.prepare(spec);
-    mainLpf.prepare(spec);
-    toneLpf.prepare(spec);
-    level.prepare(spec);
+    // preGain.prepare(spec);
+    // clipper.prepare(spec);
+    // postGain.prepare(spec);
+    // clipHpf.prepare(spec);
+    // clipLpf.prepare(spec);
+    // mainLpf.prepare(spec);
+    // toneLpf.prepare(spec);
+    // toneHpf.prepare(spec);
+    // level.prepare(spec);
+    wetChain.prepare(spec);
 
     //  Get settings
     auto chainSettings = getChainSettings(apvts);
@@ -116,17 +118,22 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     // Set wet mix proportion
     dryWet.setWetMixProportion(0.5f);
 
+    // Get processor chain references
+    auto& clipChainRef = wetChain.get<WetChainPositions::clipChain>();
+    auto& toneVolChainRef = wetChain.get<WetChainPositions::toneVolChain>();
+
     // set clipper pre-gain with Drive param
     auto preGainVal = juce::jmap<float>(chainSettings.drive, 0.f, 10.f, 21.f, 41.f);
-    preGain.setGainDecibels(preGainVal);
+    clipChainRef.get<ClipChainPositions::preGain>().setGainDecibels(preGainVal);
 
-    clipper.functionToUse = [] (float x)
+    // set clipper waveshaping function
+    clipChainRef.get<ClipChainPositions::clipper>().functionToUse = [] (float x)
     {
         return std::tanh(x);
     };
 
-    // set clipper post-gain to fixed -20 dB
-    postGain.setGainDecibels(-20.f);
+    // set clipper post-gain to fixed -18 dB
+    clipChainRef.get<ClipChainPositions::postGain>().setGainDecibels(-18.f);
 
     // initialize clipper HPF at 720 Hz
     auto clipHpfCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(
@@ -135,7 +142,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         1
     );
 
-    clipHpf.coefficients = *clipHpfCoefficients[0];
+    *clipChainRef.get<ClipChainPositions::Hpf>().coefficients = *clipHpfCoefficients[0];
 
     // initialize the clipper LPF using Drive param
     auto clipLpfFreq = juce::jmap<float>(10.f - chainSettings.drive, 0.0, 10.f, 5600.f, 20000.f);
@@ -145,7 +152,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         1
     );
 
-    clipLpf.coefficients = *clipLpfCoefficients[0];
+    *clipChainRef.get<ClipChainPositions::Lpf>().coefficients = *clipLpfCoefficients[0];
 
     // initialize the main LPF
     auto mainLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
@@ -154,7 +161,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         1
     );
 
-    mainLpf.coefficients = *mainLpfCoefficients[0];
+    *toneVolChainRef.get<ToneVolChainPositions::mainLpf>().coefficients = *mainLpfCoefficients[0];
 
     // initialize the tone LPF with Tone param
     auto toneLpfFreq = juce::jmap<float>(chainSettings.tone, 0.f, 10.f, 723.4f, 3200.f);
@@ -164,9 +171,21 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
         1
     );
 
+    *toneVolChainRef.get<ToneVolChainPositions::toneLpf>().coefficients = *toneLpfCoefficients[0];
+
+    // initialize the tone HPF with Tone param
+    auto toneHpfFreq = juce::jmap<float>(chainSettings.tone, 0.f, 10.f, 20.f, 2066.f);
+    auto toneHpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        toneHpfFreq,
+        sampleRate,
+        1
+    );
+
+    *toneVolChainRef.get<ToneVolChainPositions::toneHpf>().coefficients = *toneHpfCoefficients[0];
+
     // initialize level gain with Level param
     auto levelGainDb = juce::jmap<float>(chainSettings.level, 0.f, 10.f, -20.f, 20.f);
-    level.setGainDecibels(levelGainDb);
+    toneVolChainRef.get<ToneVolChainPositions::level>().setGainDecibels(levelGainDb);
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -234,11 +253,13 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
     // Cook variables
 
+    // Get processor chain references
+    auto& clipChainRef = wetChain.get<WetChainPositions::clipChain>();
+    auto& toneVolChainRef = wetChain.get<WetChainPositions::toneVolChain>();
+
     // set clipper pre-gain with Drive param
-    // printf("drive from settings: %f\n", chainSettings.drive);
     auto preGainVal = juce::jmap<float>(chainSettings.drive, 0.f, 10.f, 21.f, 41.f);
-    // printf("preGainVal: %f\n", preGainVal);
-    preGain.setGainDecibels(preGainVal);
+    clipChainRef.get<ClipChainPositions::preGain>().setGainDecibels(preGainVal);
 
     // set clipper LPF frequency using Drive param
     auto clipLpfFreq = juce::jmap<float>(10.f - chainSettings.drive, 0.f, 10.f, 5600.f, 20000.f);
@@ -249,7 +270,7 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         1
     );
 
-    clipLpf.coefficients = *clipLpfCoefficients[0];
+    *clipChainRef.get<ClipChainPositions::Lpf>().coefficients = *clipLpfCoefficients[0];
 
     // set tone LPF with Tone param
     auto toneLpfFreq = juce::jmap<float>(chainSettings.tone, 0.f, 10.f, 723.4f, 3200.f);
@@ -259,35 +280,49 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
         1
     );
 
+    *toneVolChainRef.get<ToneVolChainPositions::toneLpf>().coefficients = *toneLpfCoefficients[0];
+
+    // set tone HPF with Tone param
+    auto toneHpfFreq = juce::jmap<float>(chainSettings.tone, 0.f, 10.f, 20.f, 2066.f);
+    auto toneHpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        toneHpfFreq,
+        getSampleRate(),
+        1
+    );
+
+    *toneVolChainRef.get<ToneVolChainPositions::toneHpf>().coefficients = *toneHpfCoefficients[0];
+
     // set level gain with Level param
     auto levelGainDb = juce::jmap<float>(chainSettings.level, 0.f, 10.f, -20.f, 20.f);
-    level.setGainDecibels(levelGainDb);
+    toneVolChainRef.get<ToneVolChainPositions::level>().setGainDecibels(levelGainDb);
 
     // Get block to process
     juce::dsp::AudioBlock<float> block(buffer);
 
-    auto monoBlock = block.getSingleChannelBlock(0);
-    auto dryBlock = monoBlock; // create dry copy of block
+    auto wetBlock = block.getSingleChannelBlock(0);
+    auto dryBlock = wetBlock; // create dry copy of block
 
     dryWet.pushDrySamples(dryBlock);
 
     // Create processing context for wet block
-    juce::dsp::ProcessContextReplacing<float> monoContext(monoBlock);
+    juce::dsp::ProcessContextReplacing<float> wetContext(wetBlock);
 
     // Process wet block and get output
-    preGain.process(monoContext);
-    clipper.process(monoContext);
-    postGain.process(monoContext);
-    clipHpf.process(monoContext);
-    clipLpf.process(monoContext);
-    mainLpf.process(monoContext);
-    toneLpf.process(monoContext);
-    level.process(monoContext);
+    // preGain.process(monoContext);
+    // clipper.process(monoContext);
+    // postGain.process(monoContext);
+    // clipHpf.process(monoContext);
+    // clipLpf.process(monoContext);
+    // mainLpf.process(monoContext);
+    // toneLpf.process(monoContext);
+    // toneHpf.process(monoContext);
+    // level.process(monoContext);
+    wetChain.process(wetContext);
 
-    auto wetBlock = monoContext.getOutputBlock();
+    auto processedWetBlock = wetContext.getOutputBlock();
 
     // Mix dry and wet blocks
-    dryWet.mixWetSamples(wetBlock);
+    dryWet.mixWetSamples(processedWetBlock);
 }
 
 //==============================================================================

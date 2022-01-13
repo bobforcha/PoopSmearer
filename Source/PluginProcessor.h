@@ -73,25 +73,60 @@ public:
 
 private:
     //==============================================================================
+    // aliases
+    using DryWet = juce::dsp::DryWetMixer<float>;
+    using Gain = juce::dsp::Gain<float>;
+    using Filter = juce::dsp::IIR::Filter<float>;
+    using WaveShaper = juce::dsp::WaveShaper<float>;
+
+    using ClipChain = juce::dsp::ProcessorChain<Gain, WaveShaper, Gain, Filter, Filter>;
+    using ToneVolChain = juce::dsp::ProcessorChain<Filter, Filter, Filter, Gain>;
+    using WetChain = juce::dsp::ProcessorChain<ClipChain, ToneVolChain>;
+    
     // signal splitter
-    juce::dsp::DryWetMixer<float> dryWet;
+    DryWet dryWet;
     
     // clipper components
-    juce::dsp::Gain<float> preGain;
-    juce::dsp::WaveShaper<float> clipper;
-    juce::dsp::Gain<float> postGain;
-    juce::dsp::IIR::Filter<float> clipHpf;
-    juce::dsp::IIR::Filter<float> clipLpf;
+    // juce::dsp::Gain<float> preGain;
+    // juce::dsp::WaveShaper<float> clipper;
+    // juce::dsp::Gain<float> postGain;
+    // juce::dsp::IIR::Filter<float> clipHpf;
+    // juce::dsp::IIR::Filter<float> clipLpf;
 
     // main LPF
-    juce::dsp::IIR::Filter<float> mainLpf;
+    // Filter mainLpf;
 
-    // tone LPF
-    juce::dsp::IIR::Filter<float> toneLpf;
+    // tone filters
+    // Filter toneLpf;
+    // Filter toneHpf;
 
     // level gain
-    juce::dsp::Gain<float> level;
-    
+    // Gain level;
+
+    WetChain wetChain;
+
+    enum ClipChainPositions
+    {
+        preGain,
+        clipper,
+        postGain,
+        Hpf,
+        Lpf
+    };
+
+    enum ToneVolChainPositions
+    {
+        mainLpf,
+        toneLpf,
+        toneHpf,
+        level
+    };
+
+    enum WetChainPositions
+    {
+        clipChain,
+        toneVolChain
+    };
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)
 };
