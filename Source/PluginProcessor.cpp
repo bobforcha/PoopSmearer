@@ -107,6 +107,7 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     clipHpf.prepare(spec);
     clipLpf.prepare(spec);
     mainLpf.prepare(spec);
+    toneLpf.prepare(spec);
 
     //  Get settings
     auto chainSettings = getChainSettings(apvts);
@@ -153,6 +154,14 @@ void PoopSmearerAudioProcessor::prepareToPlay (double sampleRate, int samplesPer
     );
 
     mainLpf.coefficients = *mainLpfCoefficients[0];
+
+    // initialize the tone LPF with Tone param
+    auto toneLpfFreq = juce::jmap<float>(chainSettings.tone, 0.f, 10.f, 723.4f, 3200.f);
+    auto toneLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        toneLpfFreq,
+        sampleRate,
+        1
+    );
 }
 
 void PoopSmearerAudioProcessor::releaseResources()
@@ -237,6 +246,14 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
 
     clipLpf.coefficients = *clipLpfCoefficients[0];
 
+    // set tone LPF with Tone param
+    auto toneLpfFreq = juce::jmap<float>(chainSettings.tone, 0.f, 10.f, 723.4f, 3200.f);
+    auto toneLpfCoefficients = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(
+        toneLpfFreq,
+        getSampleRate(),
+        1
+    );
+
     // Get block to process
     juce::dsp::AudioBlock<float> block(buffer);
 
@@ -255,6 +272,7 @@ void PoopSmearerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, 
     clipHpf.process(monoContext);
     clipLpf.process(monoContext);
     mainLpf.process(monoContext);
+    toneLpf.process(monoContext);
 
     auto wetBlock = monoContext.getOutputBlock();
 
