@@ -61,6 +61,7 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
+    // Parameter setup
     static juce::AudioProcessorValueTreeState::ParameterLayout
         createParameterLayout();
 
@@ -70,6 +71,10 @@ public:
         "Parameters",
         createParameterLayout()
     };
+
+    //==============================================================================
+    void initWetChain(const ChainSettings& chainSettings);
+    void updateWetChain(const ChainSettings& chainSettings);
 
 private:
     //==============================================================================
@@ -105,6 +110,8 @@ private:
 
     WetChain wetChain;
 
+    // Chain position enums for referencing chain processors
+
     enum ClipChainPositions
     {
         preGain,
@@ -127,6 +134,7 @@ private:
         clipChain,
         toneVolChain
     };
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)
 };
