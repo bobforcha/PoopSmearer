@@ -73,11 +73,6 @@ public:
     };
 
     //==============================================================================
-    void initWetChain(const ChainSettings& chainSettings);
-    void updateWetChain(const ChainSettings& chainSettings);
-
-private:
-    //==============================================================================
     // aliases
     using DryWet = juce::dsp::DryWetMixer<float>;
     using Gain = juce::dsp::Gain<float>;
@@ -87,31 +82,28 @@ private:
     using ClipChain = juce::dsp::ProcessorChain<Gain, WaveShaper, Gain, Filter, Filter>;
     using ToneVolChain = juce::dsp::ProcessorChain<Filter, Filter, Filter, Gain>;
     using WetChain = juce::dsp::ProcessorChain<ClipChain, ToneVolChain>;
+
+    //==============================================================================
+    // custom methods and attributes
+    void initWetChain(const ChainSettings& chainSettings);
+    void updateWetChain(const ChainSettings& chainSettings);
+
+    void initClipChain(const ChainSettings& chainSettings);
+    void initToneVolChain(const ChainSettings& chainSettings);
+
+    void setPreGain(const ChainSettings& chainSettings);
+
+private:
+    //==============================================================================
+    // Constant params
+    
     
     // signal splitter
     DryWet dryWet;
-    
-    // clipper components
-    // juce::dsp::Gain<float> preGain;
-    // juce::dsp::WaveShaper<float> clipper;
-    // juce::dsp::Gain<float> postGain;
-    // juce::dsp::IIR::Filter<float> clipHpf;
-    // juce::dsp::IIR::Filter<float> clipLpf;
-
-    // main LPF
-    // Filter mainLpf;
-
-    // tone filters
-    // Filter toneLpf;
-    // Filter toneHpf;
-
-    // level gain
-    // Gain level;
 
     WetChain wetChain;
 
-    // Chain position enums for referencing chain processors
-
+    // chain position enums - define processor chain order
     enum ClipChainPositions
     {
         preGain,

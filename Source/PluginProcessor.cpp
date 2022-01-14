@@ -266,12 +266,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout
     return layout;
 }
 
+void PoopSmearerAudioProcessor::initClipChain(const ChainSettings& chainSettings)
+{
+    auto& clipChainRef = wetChain.get<WetChainPositions::clipChain>();
+
+    // setPreGain(clipChainRef, chainSettings);
+    // setWaveShaperFunction();
+    // setPostGain(clipChainRef);
+}
+
 void PoopSmearerAudioProcessor::initWetChain(const ChainSettings& chainSettings){
     // Set wet mix proportion
     dryWet.setWetMixProportion(0.5f);
 
+    initClipChain(chainSettings);
+    initToneVolChain(chainSettings);
+
     // Get processor chain references
-    auto& clipChainRef = wetChain.get<WetChainPositions::clipChain>();
+    // auto& clipChainRef = wetChain.get<WetChainPositions::clipChain>();
     auto& toneVolChainRef = wetChain.get<WetChainPositions::toneVolChain>();
 
     // set clipper pre-gain with Drive param
