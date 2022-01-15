@@ -92,15 +92,25 @@ public:
     void initToneVolChain(const ChainSettings& chainSettings);
 
     void setPreGain(const ChainSettings& chainSettings);
+    void setPostGain();
+    void setWaveShaperFunction();
+    void setClipperHpfFreq();
+    void setClipperLpfFreq(const ChainSettings& chainSettings);
+
+    void setMainLpfFreq();
+    void setToneHpfFreq(const ChainSettings& chainSettings);
+    void setToneLpfFreq(const ChainSettings& chainSettings);
+    void setLevelGain(const ChainSettings& chainSettings);
+
+    void updateClipChain(const ChainSettings& chainSettings);
+    void updateToneVolChain(const ChainSettings& chainSettings);
 
 private:
     //==============================================================================
-    // Constant params
-    
-    
     // signal splitter
     DryWet dryWet;
 
+    // Main processor chain
     WetChain wetChain;
 
     // chain position enums - define processor chain order
@@ -123,9 +133,12 @@ private:
 
     enum WetChainPositions
     {
-        clipChain,
-        toneVolChain
+        ClipChainIndex,
+        ToneVolChainIndex
     };
+
+    ClipChain& clipChain = wetChain.get<WetChainPositions::ClipChainIndex>();
+    ToneVolChain& toneVolChain = wetChain.get<WetChainPositions::ToneVolChainIndex>();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)
