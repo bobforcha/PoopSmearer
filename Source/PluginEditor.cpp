@@ -25,7 +25,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     g.fillEllipse(bounds);
 
     g.setColour(Colours::silver);
-    g.drawEllipse(bounds, 2.f);
+    g.drawEllipse(bounds, 4.f);
 
     auto center = bounds.getCentre();
 
@@ -123,12 +123,27 @@ void PoopSmearerAudioProcessorEditor::resized()
 
     using namespace juce;
     auto knobArea = bounds.removeFromTop(height * 0.33f);
-    auto driveKnobArea = knobArea.removeFromLeft(width * 0.33f);
-    auto levelKnobArea = knobArea.removeFromRight(width * 0.33f);
+    
+    auto driveArea = knobArea.removeFromLeft(width * 0.33f);
+    auto driveKnobArea = driveArea.removeFromTop(driveArea.getHeight() * 0.5f);
+    Rectangle<int> driveKnobBounds = Rectangle<int>(driveKnobArea.getWidth() * 0.75f,
+                                                    driveKnobArea.getWidth() * 0.75f);
+    driveKnobBounds.setCentre(driveKnobArea.getCentreX(), driveKnobArea.getCentreY());
 
-    driveSlider.setBounds(driveKnobArea);
-    levelSlider.setBounds(levelKnobArea);
-    toneSlider.setBounds(knobArea);
+    auto levelArea = knobArea.removeFromRight(width * 0.33f);
+    auto levelKnobArea = levelArea.removeFromTop(levelArea.getHeight() * 0.5f);
+    Rectangle<int> levelKnobBounds = Rectangle<int>(levelKnobArea.getWidth() * 0.75f,
+                                                    levelKnobArea.getWidth() * 0.75f);
+    levelKnobBounds.setCentre(levelKnobArea.getCentreX(), levelKnobArea.getCentreY());
+
+    auto toneKnobArea = knobArea.removeFromBottom(knobArea.getHeight() * 0.5f);
+    Rectangle<int> toneKnobBounds = Rectangle<int>(toneKnobArea.getWidth() * 0.75f,
+                                                    toneKnobArea.getWidth() * 0.75f);
+    toneKnobBounds.setCentre(toneKnobArea.getCentreX(), toneKnobArea.getCentreY());
+
+    driveSlider.setBounds(driveKnobBounds);
+    levelSlider.setBounds(levelKnobBounds);
+    toneSlider.setBounds(toneKnobBounds);
 }
 
 std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()
