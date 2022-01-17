@@ -15,15 +15,51 @@
 /**
 */
 // Custom Rotary Slider
-struct CustomRotarySlider : juce::Slider
-{
-    CustomRotarySlider() : juce::Slider(
-        juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-        juce::Slider::TextEntryBoxPosition::TextBoxBelow
-    )
-    {
+// struct RotarySliderWithLabels : juce::Slider
+// {
+//     RotarySliderWithLabels() : juce::Slider(
+//         juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+//         juce::Slider::TextEntryBoxPosition::TextBoxBelow
+//     )
+//     {
 
+//     }
+// };
+
+struct LookAndFeel : juce::LookAndFeel_V4
+{
+    virtual void drawRotarySlider(juce::Graphics& g,
+                                    int x, int y, int width, int height,
+                                    float sliderPosProportional,
+                                    float rotaryAngleStart,
+                                    float rotaryAngleEnd,
+                                    juce::Slider&) override {}
+};
+
+struct RotarySliderWithLabels : juce::Slider
+{
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap) :
+    juce::Slider(
+        juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+        juce::Slider::TextEntryBoxPosition::NoTextBox),
+    param(&rap)
+    {
+        setLookAndFeel(&lnf);
     }
+
+    ~RotarySliderWithLabels()
+    {
+        setLookAndFeel(nullptr);
+    }
+
+    void paint(juce::Graphics& g) override {}
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; }
+    juce::String getDisplayString() const;
+
+private:
+    LookAndFeel lnf;
+    juce::RangedAudioParameter* param;
 };
 class PoopSmearerAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
@@ -41,7 +77,7 @@ private:
     PoopSmearerAudioProcessor& audioProcessor;
 
     // Add sliders
-    CustomRotarySlider driveSlider, toneSlider, levelSlider;
+    RotarySliderWithLabels driveSlider, toneSlider, levelSlider;
 
     // Add attachments
     using APVTS = juce::AudioProcessorValueTreeState;

@@ -12,6 +12,9 @@
 //==============================================================================
 PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
+    driveSlider(*audioProcessor.apvts.getParameter("Drive")),
+    toneSlider(*audioProcessor.apvts.getParameter("Tone")),
+    levelSlider(*audioProcessor.apvts.getParameter("Level")),
     driveSliderAttachment(audioProcessor.apvts, "Drive", driveSlider),
     toneSliderAttachment(audioProcessor.apvts, "Tone", toneSlider),
     levelSliderAttachment(audioProcessor.apvts, "Level", levelSlider)
