@@ -15,7 +15,12 @@ PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAud
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    for (auto* comp : getComps())
+    {
+        addAndMakeVisible(comp);
+    }
+    
+    setSize (300, 400);
 }
 
 PoopSmearerAudioProcessorEditor::~PoopSmearerAudioProcessorEditor()
@@ -37,4 +42,21 @@ void PoopSmearerAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    auto bounds = getLocalBounds();
+    auto center = bounds.getCentre();
+    auto width = bounds.getWidth();
+    auto height = bounds.getHeight();
+
+    using namespace juce;
+    auto boundsRec = Rectangle<float>(width, height);
+}
+
+std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()
+{
+    return
+    {
+        &driveSlider,
+        &toneSlider,
+        &levelSlider
+    };
 }

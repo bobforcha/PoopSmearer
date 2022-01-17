@@ -203,8 +203,8 @@ bool PoopSmearerAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* PoopSmearerAudioProcessor::createEditor()
 {
-    // return new PoopSmearerAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new PoopSmearerAudioProcessorEditor (*this);
+    // return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
