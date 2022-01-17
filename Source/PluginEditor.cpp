@@ -20,7 +20,7 @@ PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAud
         addAndMakeVisible(comp);
     }
     
-    setSize (300, 400);
+    setSize (300, 570);
 }
 
 PoopSmearerAudioProcessorEditor::~PoopSmearerAudioProcessorEditor()
@@ -48,7 +48,13 @@ void PoopSmearerAudioProcessorEditor::resized()
     auto height = bounds.getHeight();
 
     using namespace juce;
-    auto boundsRec = Rectangle<float>(width, height);
+    auto knobArea = bounds.removeFromTop(height * 0.33f);
+    auto driveKnobArea = knobArea.removeFromLeft(width * 0.33f);
+    auto levelKnobArea = knobArea.removeFromRight(width * 0.33f);
+
+    driveSlider.setBounds(driveKnobArea);
+    levelSlider.setBounds(levelKnobArea);
+    toneSlider.setBounds(knobArea);
 }
 
 std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()
