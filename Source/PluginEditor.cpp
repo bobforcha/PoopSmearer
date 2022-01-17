@@ -11,7 +11,10 @@
 
 //==============================================================================
 PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+    : AudioProcessorEditor (&p), audioProcessor (p),
+    driveSliderAttachment(audioProcessor.apvts, "Drive", driveSlider),
+    toneSliderAttachment(audioProcessor.apvts, "Tone", toneSlider),
+    levelSliderAttachment(audioProcessor.apvts, "Level", levelSlider)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -20,7 +23,7 @@ PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAud
         addAndMakeVisible(comp);
     }
     
-    setSize (300, 570);
+    setSize (300, 475);
 }
 
 PoopSmearerAudioProcessorEditor::~PoopSmearerAudioProcessorEditor()

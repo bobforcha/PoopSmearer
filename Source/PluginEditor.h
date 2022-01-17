@@ -43,6 +43,12 @@ private:
     // Add sliders
     CustomRotarySlider driveSlider, toneSlider, levelSlider;
 
+    // Add attachments
+    using APVTS = juce::AudioProcessorValueTreeState;
+    using Attachment = APVTS::SliderAttachment;
+
+    Attachment driveSliderAttachment, toneSliderAttachment, levelSliderAttachment;
+
     // get editor components
     std::vector<juce::Component*> getComps();
 
