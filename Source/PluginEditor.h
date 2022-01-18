@@ -15,9 +15,9 @@
 /**
 */
 // Custom Rotary Slider
-// struct RotarySliderWithLabels : juce::Slider
+// struct RotarySliderWithLabel : juce::Slider
 // {
-//     RotarySliderWithLabels() : juce::Slider(
+//     RotarySliderWithLabel() : juce::Slider(
 //         juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
 //         juce::Slider::TextEntryBoxPosition::TextBoxBelow
 //     )
@@ -36,9 +36,9 @@ struct LookAndFeel : juce::LookAndFeel_V4
                                     juce::Slider&) override;
 };
 
-struct RotarySliderWithLabels : juce::Slider
+struct RotarySliderWithLabel : juce::Slider
 {
-    RotarySliderWithLabels(juce::RangedAudioParameter& rap) :
+    RotarySliderWithLabel(juce::RangedAudioParameter& rap) :
     juce::Slider(
         juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
         juce::Slider::TextEntryBoxPosition::NoTextBox),
@@ -47,7 +47,7 @@ struct RotarySliderWithLabels : juce::Slider
         setLookAndFeel(&lnf);
     }
 
-    ~RotarySliderWithLabels()
+    ~RotarySliderWithLabel()
     {
         setLookAndFeel(nullptr);
     }
@@ -77,7 +77,7 @@ private:
     PoopSmearerAudioProcessor& audioProcessor;
 
     // Add sliders
-    RotarySliderWithLabels driveSlider, toneSlider, levelSlider;
+    RotarySliderWithLabel driveSlider, toneSlider, levelSlider;
 
     // Add attachments
     using APVTS = juce::AudioProcessorValueTreeState;

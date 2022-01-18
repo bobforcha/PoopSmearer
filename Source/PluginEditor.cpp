@@ -50,7 +50,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 }
 
 // =============================================================================
-void RotarySliderWithLabels::paint(juce::Graphics &g)
+void RotarySliderWithLabel::paint(juce::Graphics &g)
 {
   using namespace juce;
 
@@ -72,7 +72,7 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
                                     *this);
 }
 
-juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
+juce::Rectangle<int> RotarySliderWithLabel::getSliderBounds() const
 {
     auto bounds = getLocalBounds();
     float scaleFactor = 0.8f;
