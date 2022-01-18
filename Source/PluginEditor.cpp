@@ -21,10 +21,10 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
     auto bounds = Rectangle<float>(x, y, width, height);
 
-    g.setColour(Colours::black);
+    g.setColour(Colours::silver);
     g.fillEllipse(bounds);
 
-    g.setColour(Colours::silver);
+    g.setColour(Colours::black);
     g.drawEllipse(bounds, 4.f);
 
     auto center = bounds.getCentre();
@@ -105,11 +105,12 @@ PoopSmearerAudioProcessorEditor::~PoopSmearerAudioProcessorEditor()
 void PoopSmearerAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    using namespace juce;
+    g.fillAll (Colours::green);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Poop Smearer PS9", getLocalBounds(), juce::Justification::centred, 1);
+    g.setColour (juce::Colours::black);
+    g.setFont (22.0f);
+    g.drawFittedText ("Poop Smearer\nPS9", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void PoopSmearerAudioProcessorEditor::resized()
@@ -129,6 +130,7 @@ void PoopSmearerAudioProcessorEditor::resized()
     Rectangle<int> driveKnobBounds = Rectangle<int>(driveKnobArea.getWidth() * 0.75f,
                                                     driveKnobArea.getWidth() * 0.75f);
     driveKnobBounds.setCentre(driveKnobArea.getCentreX(), driveKnobArea.getCentreY());
+    auto driveLabelArea = driveKnobArea.removeFromTop(driveSlider.getTextHeight() * 1.8f);
 
     auto levelArea = knobArea.removeFromRight(width * 0.33f);
     auto levelKnobArea = levelArea.removeFromTop(levelArea.getHeight() * 0.5f);
