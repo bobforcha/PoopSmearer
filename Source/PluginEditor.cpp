@@ -122,9 +122,36 @@ void PoopSmearerAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour(Colours::green);
     g.fillRoundedRectangle(pedalArea, 10.f);
 
-    g.setColour (juce::Colours::black);
+    auto pedalBottomArea = pedalArea.removeFromBottom(pedalArea.getHeight() * 0.66f);
+    auto buttonLabelArea = Rectangle<float>(pedalBottomArea.getWidth() * scaleFactor,
+                                            pedalBottomArea.getHeight() * scaleFactor);
+    buttonLabelArea.setCentre(pedalBottomArea.getCentreX(),
+                                pedalBottomArea.getCentreY());
+    
+    g.setColour(juce::Colours::black);
+    g.fillRoundedRectangle(buttonLabelArea, 5.f);
+
+    auto buttonLabelTop = buttonLabelArea.removeFromTop(buttonLabelArea.getHeight() * 0.5f);
+    auto pedalLabelArea = Rectangle<float>(buttonLabelTop.getWidth() * 0.9f,
+                                            buttonLabelTop.getHeight() * 0.9f);
+    pedalLabelArea.setCentre(buttonLabelTop.getCentre());
+    g.setColour(Colours::silver);
+    g.fillRoundedRectangle(pedalLabelArea, 4.5f);
+
+    g.setColour (juce::Colours::blue);
     g.setFont (22.0f);
-    g.drawFittedText ("Poop Smearer\nPS9", pedalArea.toNearestInt(), juce::Justification::centred, 1);
+    g.drawFittedText ("Poop Smearer\nPS9", pedalLabelArea.toNearestInt(), juce::Justification::centred, 1);
+
+    auto buttonArea = Rectangle<float>(buttonLabelArea.getWidth() * 0.9f,
+                                        buttonLabelArea.getHeight() * 0.9f);
+    buttonArea.setCentre(buttonLabelArea.getCentre());
+    g.setColour(Colours::silver);
+    g.fillRoundedRectangle(buttonArea, 4.5f);
+
+    auto tagArea = pedalBottomArea.removeFromBottom(pedalBottomArea.getHeight() * 0.1f);
+    g.setColour(Colours::black);
+    g.setFont(16.0f);
+    g.drawFittedText("Bob's Plugin Bargain Bin", tagArea.toNearestInt(), Justification::centred, 1);
 }
 
 void PoopSmearerAudioProcessorEditor::resized()
