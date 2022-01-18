@@ -50,7 +50,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 }
 
 // =============================================================================
-void RotarySliderWithLabel::paint(juce::Graphics &g)
+void RotarySliderWithLabelBelow::paint(juce::Graphics &g)
 {
   using namespace juce;
 
@@ -72,15 +72,53 @@ void RotarySliderWithLabel::paint(juce::Graphics &g)
                                     *this);
 }
 
-juce::Rectangle<int> RotarySliderWithLabel::getSliderBounds() const
+juce::Rectangle<int> RotarySliderWithLabelBelow::getSliderBounds() const
 {
     auto bounds = getLocalBounds();
+    auto boundsTop = bounds.removeFromTop(bounds.getHeight() * 0.5f);
     float scaleFactor = 0.8f;
-    auto pedalBounds = juce::Rectangle<int>(bounds.getWidth() * scaleFactor,
-                                            bounds.getHeight() * scaleFactor);
-    pedalBounds.setCentre(bounds.getCentre());
+    float diameter = std::min<float>(boundsTop.getWidth() * scaleFactor, boundsTop.getHeight() * scaleFactor);
+    auto sliderBounds = juce::Rectangle<int>(diameter,
+                                                diameter);
+    sliderBounds.setCentre(boundsTop.getCentre());
 
-    return pedalBounds;
+    return sliderBounds;
+}
+
+// =============================================================================
+void RotarySliderWithLabelAbove::paint(juce::Graphics &g)
+{
+  using namespace juce;
+
+  auto startAng = degreesToRadians(180.f + 45.f);
+  auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+
+  auto range = getRange();
+
+  auto sliderBounds = getSliderBounds();
+
+  getLookAndFeel().drawRotarySlider(g,
+                                    sliderBounds.getX(),
+                                    sliderBounds.getY(),
+                                    sliderBounds.getWidth(),
+                                    sliderBounds.getHeight(),
+                                    jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+                                    startAng,
+                                    endAng,
+                                    *this);
+}
+
+juce::Rectangle<int> RotarySliderWithLabelAbove::getSliderBounds() const
+{
+    auto bounds = getLocalBounds();
+    auto boundsTop = bounds.removeFromBottom(bounds.getHeight() * 0.5f);
+    float scaleFactor = 0.8f;
+    float diameter = std::min<float>(boundsTop.getWidth() * scaleFactor, boundsTop.getHeight() * scaleFactor);
+    auto sliderBounds = juce::Rectangle<int>(diameter,
+                                                diameter);
+    sliderBounds.setCentre(boundsTop.getCentre());
+
+    return sliderBounds;
 }
 
 //==============================================================================
@@ -159,9 +197,7 @@ void PoopSmearerAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
-    // auto center = bounds.getCentre();
-    // auto width = bounds.getWidth();
-    // auto height = bounds.getHeight();
+
     float scaleFactor = 0.8f;
 
     using namespace juce;
@@ -172,26 +208,12 @@ void PoopSmearerAudioProcessorEditor::resized()
     auto knobArea = pedalBounds.removeFromTop(pedalBounds.getHeight() * 0.33f);
     
     auto driveArea = knobArea.removeFromLeft(knobArea.getWidth() * 0.33f);
-    auto driveKnobArea = driveArea.removeFromTop(driveArea.getHeight() * 0.5f);
-    Rectangle<int> driveKnobBounds = Rectangle<int>(driveKnobArea.getWidth() * 0.75f,
-                                                    driveKnobArea.getWidth() * 0.75f);
-    driveKnobBounds.setCentre(driveKnobArea.getCentreX(), driveKnobArea.getCentreY());
-    auto driveLabelArea = driveKnobArea.removeFromTop(driveSlider.getTextHeight() * 1.8f);
 
     auto levelArea = knobArea.removeFromRight(knobArea.getWidth() * 0.5f);
-    auto levelKnobArea = levelArea.removeFromTop(levelArea.getHeight() * 0.5f);
-    Rectangle<int> levelKnobBounds = Rectangle<int>(levelKnobArea.getWidth() * 0.75f,
-                                                    levelKnobArea.getWidth() * 0.75f);
-    levelKnobBounds.setCentre(levelKnobArea.getCentreX(), levelKnobArea.getCentreY());
 
-    auto toneKnobArea = knobArea.removeFromBottom(knobArea.getHeight() * 0.5f);
-    Rectangle<int> toneKnobBounds = Rectangle<int>(toneKnobArea.getWidth() * 0.75f,
-                                                    toneKnobArea.getWidth() * 0.75f);
-    toneKnobBounds.setCentre(toneKnobArea.getCentreX(), toneKnobArea.getCentreY());
-
-    driveSlider.setBounds(driveKnobBounds);
-    levelSlider.setBounds(levelKnobBounds);
-    toneSlider.setBounds(toneKnobBounds);
+    driveSlider.setBounds(driveArea.toNearestInt());
+    levelSlider.setBounds(levelArea.toNearestInt());
+    toneSlider.setBounds(knobArea.toNearestInt());
 }
 
 std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()

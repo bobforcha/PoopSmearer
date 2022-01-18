@@ -14,18 +14,8 @@
 //==============================================================================
 /**
 */
-// Custom Rotary Slider
-// struct RotarySliderWithLabel : juce::Slider
-// {
-//     RotarySliderWithLabel() : juce::Slider(
-//         juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
-//         juce::Slider::TextEntryBoxPosition::TextBoxBelow
-//     )
-//     {
 
-//     }
-// };
-
+// Custom Look and Feel
 struct LookAndFeel : juce::LookAndFeel_V4
 {
     virtual void drawRotarySlider(juce::Graphics& g,
@@ -36,9 +26,10 @@ struct LookAndFeel : juce::LookAndFeel_V4
                                     juce::Slider&) override;
 };
 
-struct RotarySliderWithLabel : juce::Slider
+// Custom Rotary Slider
+struct RotarySliderWithLabelBelow : juce::Slider
 {
-    RotarySliderWithLabel(juce::RangedAudioParameter& rap) :
+    RotarySliderWithLabelBelow(juce::RangedAudioParameter& rap) :
     juce::Slider(
         juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
         juce::Slider::TextEntryBoxPosition::NoTextBox),
@@ -47,14 +38,42 @@ struct RotarySliderWithLabel : juce::Slider
         setLookAndFeel(&lnf);
     }
 
-    ~RotarySliderWithLabel()
+    ~RotarySliderWithLabelBelow()
     {
         setLookAndFeel(nullptr);
     }
 
     void paint(juce::Graphics& g) override;
     juce::Rectangle<int> getSliderBounds() const;
-    int getTextHeight() const { return 14; }
+    juce::Rectangle<int> getLabelBounds() const;
+    int getTextHeight() const { return 16; }
+    juce::String getDisplayString() const;
+
+private:
+    LookAndFeel lnf;
+    juce::RangedAudioParameter* param;
+};
+
+struct RotarySliderWithLabelAbove : juce::Slider
+{
+    RotarySliderWithLabelAbove(juce::RangedAudioParameter& rap) :
+    juce::Slider(
+        juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+        juce::Slider::TextEntryBoxPosition::NoTextBox),
+    param(&rap)
+    {
+        setLookAndFeel(&lnf);
+    }
+
+    ~RotarySliderWithLabelAbove()
+    {
+        setLookAndFeel(nullptr);
+    }
+
+    void paint(juce::Graphics& g) override;
+    juce::Rectangle<int> getSliderBounds() const;
+    juce::Rectangle<int> getLabelBounds() const;
+    int getTextHeight() const { return 16; }
     juce::String getDisplayString() const;
 
 private:
@@ -77,7 +96,8 @@ private:
     PoopSmearerAudioProcessor& audioProcessor;
 
     // Add sliders
-    RotarySliderWithLabel driveSlider, toneSlider, levelSlider;
+    RotarySliderWithLabelBelow driveSlider, levelSlider;
+    RotarySliderWithLabelAbove toneSlider;
 
     // Add attachments
     using APVTS = juce::AudioProcessorValueTreeState;
