@@ -74,7 +74,13 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 {
-  return getLocalBounds();
+    auto bounds = getLocalBounds();
+    float scaleFactor = 0.8f;
+    auto pedalBounds = juce::Rectangle<int>(bounds.getWidth() * scaleFactor,
+                                            bounds.getHeight() * scaleFactor);
+    pedalBounds.setCentre(bounds.getCentre());
+
+    return pedalBounds;
 }
 
 //==============================================================================
@@ -106,11 +112,19 @@ void PoopSmearerAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     using namespace juce;
-    g.fillAll (Colours::green);
+    g.fillAll (Colours::black);
+
+    auto bounds = getLocalBounds();
+    float scaleFactor = 0.8f;
+    auto pedalArea = Rectangle<float>(bounds.getWidth() * scaleFactor,
+                                        bounds.getHeight() * scaleFactor);
+    pedalArea.setCentre(bounds.getCentreX(), bounds.getCentreY());
+    g.setColour(Colours::green);
+    g.fillRoundedRectangle(pedalArea, 10.f);
 
     g.setColour (juce::Colours::black);
     g.setFont (22.0f);
-    g.drawFittedText ("Poop Smearer\nPS9", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawFittedText ("Poop Smearer\nPS9", pedalArea.toNearestInt(), juce::Justification::centred, 1);
 }
 
 void PoopSmearerAudioProcessorEditor::resized()
@@ -118,21 +132,26 @@ void PoopSmearerAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
-    auto center = bounds.getCentre();
-    auto width = bounds.getWidth();
-    auto height = bounds.getHeight();
+    // auto center = bounds.getCentre();
+    // auto width = bounds.getWidth();
+    // auto height = bounds.getHeight();
+    float scaleFactor = 0.8f;
 
     using namespace juce;
-    auto knobArea = bounds.removeFromTop(height * 0.33f);
+    auto pedalBounds = Rectangle<float>(bounds.getWidth() * scaleFactor,
+                                        bounds.getHeight() * scaleFactor);
+    pedalBounds.setCentre(bounds.getCentreX(), bounds.getCentreY());
+
+    auto knobArea = pedalBounds.removeFromTop(pedalBounds.getHeight() * 0.33f);
     
-    auto driveArea = knobArea.removeFromLeft(width * 0.33f);
+    auto driveArea = knobArea.removeFromLeft(knobArea.getWidth() * 0.33f);
     auto driveKnobArea = driveArea.removeFromTop(driveArea.getHeight() * 0.5f);
     Rectangle<int> driveKnobBounds = Rectangle<int>(driveKnobArea.getWidth() * 0.75f,
                                                     driveKnobArea.getWidth() * 0.75f);
     driveKnobBounds.setCentre(driveKnobArea.getCentreX(), driveKnobArea.getCentreY());
     auto driveLabelArea = driveKnobArea.removeFromTop(driveSlider.getTextHeight() * 1.8f);
 
-    auto levelArea = knobArea.removeFromRight(width * 0.33f);
+    auto levelArea = knobArea.removeFromRight(knobArea.getWidth() * 0.5f);
     auto levelKnobArea = levelArea.removeFromTop(levelArea.getHeight() * 0.5f);
     Rectangle<int> levelKnobBounds = Rectangle<int>(levelKnobArea.getWidth() * 0.75f,
                                                     levelKnobArea.getWidth() * 0.75f);
