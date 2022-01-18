@@ -52,24 +52,27 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 // =============================================================================
 void RotarySliderWithLabelBelow::paint(juce::Graphics &g)
 {
-  using namespace juce;
+    using namespace juce;
 
-  auto startAng = degreesToRadians(180.f + 45.f);
-  auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+    auto startAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
 
-  auto range = getRange();
+    auto range = getRange();
 
-  auto sliderBounds = getSliderBounds();
+    auto sliderBounds = getSliderBounds();
 
-  getLookAndFeel().drawRotarySlider(g,
-                                    sliderBounds.getX(),
-                                    sliderBounds.getY(),
-                                    sliderBounds.getWidth(),
-                                    sliderBounds.getHeight(),
-                                    jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
-                                    startAng,
-                                    endAng,
-                                    *this);
+    getLookAndFeel().drawRotarySlider(g,
+                                        sliderBounds.getX(),
+                                        sliderBounds.getY(),
+                                        sliderBounds.getWidth(),
+                                        sliderBounds.getHeight(),
+                                        jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+                                        startAng,
+                                        endAng,
+                                        *this);
+
+    auto labelBounds = getLabelBounds();
+    g.drawFittedText(this->param->getParameterID().toUpperCase(), labelBounds, Justification::centred, 1);
 }
 
 juce::Rectangle<int> RotarySliderWithLabelBelow::getSliderBounds() const
@@ -85,40 +88,59 @@ juce::Rectangle<int> RotarySliderWithLabelBelow::getSliderBounds() const
     return sliderBounds;
 }
 
+juce::Rectangle<int> RotarySliderWithLabelBelow::getLabelBounds() const
+{
+    auto bounds = getLocalBounds();
+    auto sliderBounds = bounds.removeFromTop(bounds.getHeight() * 0.5f);
+    auto labelBounds = bounds.removeFromTop(getTextHeight() * 1.8f);
+    return labelBounds;
+}
+
 // =============================================================================
 void RotarySliderWithLabelAbove::paint(juce::Graphics &g)
 {
-  using namespace juce;
+    using namespace juce;
 
-  auto startAng = degreesToRadians(180.f + 45.f);
-  auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
+    auto startAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
 
-  auto range = getRange();
+    auto range = getRange();
 
-  auto sliderBounds = getSliderBounds();
+    auto sliderBounds = getSliderBounds();
 
-  getLookAndFeel().drawRotarySlider(g,
-                                    sliderBounds.getX(),
-                                    sliderBounds.getY(),
-                                    sliderBounds.getWidth(),
-                                    sliderBounds.getHeight(),
-                                    jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
-                                    startAng,
-                                    endAng,
-                                    *this);
+    getLookAndFeel().drawRotarySlider(g,
+                                        sliderBounds.getX(),
+                                        sliderBounds.getY(),
+                                        sliderBounds.getWidth(),
+                                        sliderBounds.getHeight(),
+                                        jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
+                                        startAng,
+                                        endAng,
+                                        *this);
+
+    auto labelBounds = getLabelBounds();
+    g.drawFittedText(this->param->getParameterID().toUpperCase(), labelBounds, Justification::centred, 1);
 }
 
 juce::Rectangle<int> RotarySliderWithLabelAbove::getSliderBounds() const
 {
     auto bounds = getLocalBounds();
-    auto boundsTop = bounds.removeFromBottom(bounds.getHeight() * 0.5f);
+    auto boundsBottom = bounds.removeFromBottom(bounds.getHeight() * 0.5f);
     float scaleFactor = 0.8f;
-    float diameter = std::min<float>(boundsTop.getWidth() * scaleFactor, boundsTop.getHeight() * scaleFactor);
+    float diameter = std::min<float>(boundsBottom.getWidth() * scaleFactor, boundsBottom.getHeight() * scaleFactor);
     auto sliderBounds = juce::Rectangle<int>(diameter,
                                                 diameter);
-    sliderBounds.setCentre(boundsTop.getCentre());
+    sliderBounds.setCentre(boundsBottom.getCentre());
 
     return sliderBounds;
+}
+
+juce::Rectangle<int> RotarySliderWithLabelAbove::getLabelBounds() const
+{
+    auto bounds = getLocalBounds();
+    auto sliderBounds = bounds.removeFromBottom(bounds.getHeight() * 0.5f);
+    auto labelBounds = bounds.removeFromBottom(getTextHeight() * 1.8f);
+    return labelBounds;
 }
 
 //==============================================================================
