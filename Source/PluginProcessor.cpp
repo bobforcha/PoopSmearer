@@ -392,6 +392,7 @@ void PoopSmearerAudioProcessor::initWetChain(const ChainSettings& chainSettings)
 void PoopSmearerAudioProcessor::updateClipChain(const ChainSettings& chainSettings)
 {
     setPreGain(chainSettings);
+    setClipperLpfFreq(chainSettings);
 }
 
 void PoopSmearerAudioProcessor::updateToneVolChain(const ChainSettings& chainSettings)
