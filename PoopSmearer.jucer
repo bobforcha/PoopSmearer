@@ -7,6 +7,8 @@
               pluginChannelConfigs="{1, 1}">
   <MAINGROUP id="scTJvt" name="PoopSmearer">
     <GROUP id="{C0D93BD4-DF7B-6F16-6699-B04BD5E1DF94}" name="Source">
+      <FILE id="hVhOiZ" name="ShitClipper.cpp" compile="1" resource="0" file="Source/ShitClipper.cpp"/>
+      <FILE id="tHtp16" name="ShitClipper.h" compile="0" resource="0" file="Source/ShitClipper.h"/>
       <FILE id="ACuLAh" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="aJ0zlb" name="PluginProcessor.h" compile="0" resource="0"
