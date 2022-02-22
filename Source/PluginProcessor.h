@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "ShitClipper.h"
 
 //==============================================================================
 /**
@@ -107,6 +108,9 @@ public:
 
 private:
     //==============================================================================
+    // Shit Clipper Overdrive
+    ShitClipper shitClipper;
+    
     // signal splitter
     DryWet dryWet;
 

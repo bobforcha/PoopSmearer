@@ -12,6 +12,10 @@
 
 #include <JuceHeader.h>
 
+struct ChainSettings
+{
+    float drive { 0 }, tone { 0 }, level { 0 };
+};
 class ShitClipper
 {
 public:
@@ -21,15 +25,42 @@ public:
 
     // Main methods to be called in plugin prepareToPlay() and processBlock()
     // methods.
-    void prepare(juce::dsp::ProcessSpec spec);
-    void process();
+    void prepare(juce::dsp::ProcessSpec spec,
+                    const double sampleRate,
+                    juce::AudioProcessorValueTreeState& apvts);
+    void process(juce::AudioBuffer<float>& buffer,
+                    const double sampleRate,
+                    juce::AudioProcessorValueTreeState& apvts);
 
-    void initProcessors();
-    void update();
+    // Inittialize main processor chains.
+    void initWetChain(const ChainSettings& chainSettings, const double sampleRate);
+    void initClipChain(const float drive, const double sampleRate);
+    void initToneVolChain(const float tone, const float level, const double sampleRate);
+    
+    // Update main processor chains.
+    void updateWetChain(const ChainSettings& chainSettings, const double sampleRate);
+    void updateClipChain(const float drive, const double sampleRate);
+    void updateToneVolChain(const float tone, const float level, const double sampleRate);
 
-    // Parameter setup
+    // Clip chain methods.
+    void setPreGain(const float drive);
+    void setPostGain();
+    void setWaveShaperFunction();
+    void setClipperHpfFreq(const double sampleRate);
+    void setClipperLpfFreq(const float drive, const double sampleRate);
+
+    // Tone - Volume chain methods.
+    void setMainLpfFreq(const double sampleRate);
+    void setToneHpfFreq(const float tone, const double sampleRate);
+    void setToneLpfFreq(const float tone, const double sampleRate);
+    void setLevelGain(const float level);
+
+    // Parameter setup to be used when creating APVTS in plugin.
     static juce::AudioProcessorValueTreeState::ParameterLayout
         createParameterLayout();
+
+    // Get settings from APVTS
+    ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
     // aliases
     using DryWet = juce::dsp::DryWetMixer<float>;
