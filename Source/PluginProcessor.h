@@ -14,12 +14,6 @@
 //==============================================================================
 /**
 */
-struct ChainSettings
-{
-    float drive { 0 }, tone { 0 }, level { 0 };
-};
-
-ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
 class PoopSmearerAudioProcessor  : public juce::AudioProcessor
 {
@@ -63,86 +57,18 @@ public:
 
     //==============================================================================
     // Parameter setup
-    static juce::AudioProcessorValueTreeState::ParameterLayout
-        createParameterLayout();
 
     juce::AudioProcessorValueTreeState apvts {
         *this,
         nullptr,
         "Parameters",
-        createParameterLayout()
+        shitClipper.createParameterLayout()
     };
-
-    //==============================================================================
-    // aliases
-    using DryWet = juce::dsp::DryWetMixer<float>;
-    using Gain = juce::dsp::Gain<float>;
-    using Filter = juce::dsp::IIR::Filter<float>;
-    using WaveShaper = juce::dsp::WaveShaper<float>;
-
-    using ClipChain = juce::dsp::ProcessorChain<Gain, WaveShaper, Gain, Filter, Filter>;
-    using ToneVolChain = juce::dsp::ProcessorChain<Filter, Filter, Filter, Gain>;
-    using WetChain = juce::dsp::ProcessorChain<ClipChain, ToneVolChain>;
-
-    //==============================================================================
-    // custom methods and attributes
-    void initWetChain(const ChainSettings& chainSettings);
-    void updateWetChain(const ChainSettings& chainSettings);
-
-    void initClipChain(const ChainSettings& chainSettings);
-    void initToneVolChain(const ChainSettings& chainSettings);
-
-    void setPreGain(const ChainSettings& chainSettings);
-    void setPostGain();
-    void setWaveShaperFunction();
-    void setClipperHpfFreq();
-    void setClipperLpfFreq(const ChainSettings& chainSettings);
-
-    void setMainLpfFreq();
-    void setToneHpfFreq(const ChainSettings& chainSettings);
-    void setToneLpfFreq(const ChainSettings& chainSettings);
-    void setLevelGain(const ChainSettings& chainSettings);
-
-    void updateClipChain(const ChainSettings& chainSettings);
-    void updateToneVolChain(const ChainSettings& chainSettings);
 
 private:
     //==============================================================================
     // Shit Clipper Overdrive
     ShitClipper shitClipper;
-    
-    // signal splitter
-    DryWet dryWet;
-
-    // Main processor chain
-    WetChain wetChain;
-
-    // chain position enums - define processor chain order
-    enum ClipChainPositions
-    {
-        preGain,
-        clipper,
-        postGain,
-        Hpf,
-        Lpf
-    };
-
-    enum ToneVolChainPositions
-    {
-        mainLpf,
-        toneLpf,
-        toneHpf,
-        level
-    };
-
-    enum WetChainPositions
-    {
-        ClipChainIndex,
-        ToneVolChainIndex
-    };
-
-    ClipChain& clipChain = wetChain.get<WetChainPositions::ClipChainIndex>();
-    ToneVolChain& toneVolChain = wetChain.get<WetChainPositions::ToneVolChainIndex>();
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PoopSmearerAudioProcessor)
