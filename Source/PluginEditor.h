@@ -10,21 +10,11 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "LookAndFeel.h"
 
 //==============================================================================
 /**
 */
-
-// Custom Look and Feel
-struct LookAndFeel : juce::LookAndFeel_V4
-{
-    virtual void drawRotarySlider(juce::Graphics& g,
-                                    int x, int y, int width, int height,
-                                    float sliderPosProportional,
-                                    float rotaryStartAngle,
-                                    float rotaryEndAngle,
-                                    juce::Slider&) override;
-};
 
 // Custom Rotary Slider
 struct RotarySliderWithLabelBelow : juce::Slider

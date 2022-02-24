@@ -210,8 +210,8 @@ void ShitClipper::setLevelGain(const float level)
 
 // =============================================================================
 // Create plugin params
-static juce::AudioProcessorValueTreeState::ParameterLayout
-    createParameterLayout()
+juce::AudioProcessorValueTreeState::ParameterLayout
+    ShitClipper::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
