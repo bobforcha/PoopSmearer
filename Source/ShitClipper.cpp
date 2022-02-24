@@ -42,23 +42,26 @@ void ShitClipper::process(juce::AudioBuffer<float>& buffer,
     // Cook variables
     updateWetChain(chainSettings, sampleRate);
 
-    // Get block to process
-    juce::dsp::AudioBlock<float> block(buffer);
+    if (!chainSettings.isBypassed)
+    {
+        // Get block to process
+        juce::dsp::AudioBlock<float> block(buffer);
 
-    auto wetBlock = block.getSingleChannelBlock(0);
-    auto dryBlock = wetBlock; // create dry copy of block
+        auto wetBlock = block.getSingleChannelBlock(0);
+        auto dryBlock = wetBlock; // create dry copy of block
 
-    dryWet.pushDrySamples(dryBlock);
+        dryWet.pushDrySamples(dryBlock);
 
-    // Create processing context for wet block
-    juce::dsp::ProcessContextReplacing<float> wetContext(wetBlock);
+        // Create processing context for wet block
+        juce::dsp::ProcessContextReplacing<float> wetContext(wetBlock);
 
-    // Process wet block and get output
-    wetChain.process(wetContext);
-    auto processedWetBlock = wetContext.getOutputBlock();
+        // Process wet block and get output
+        wetChain.process(wetContext);
+        auto processedWetBlock = wetContext.getOutputBlock();
 
-    // Mix dry and wet blocks
-    dryWet.mixWetSamples(processedWetBlock);
+        // Mix dry and wet blocks
+        dryWet.mixWetSamples(processedWetBlock);
+    }
 }
 
 // =============================================================================

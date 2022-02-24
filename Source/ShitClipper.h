@@ -14,8 +14,10 @@
 
 struct ChainSettings
 {
+    bool isBypassed = false;
     float drive { 0 }, tone { 0 }, level { 0 };
 };
+
 class ShitClipper
 {
 public:
