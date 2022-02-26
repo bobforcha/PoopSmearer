@@ -15,6 +15,41 @@
 //==============================================================================
 /**
 */
+// Background pedal image
+struct PedalBackground : juce::ImageComponent
+{
+    PedalBackground();
+
+    ~PedalBackground()
+    {}
+
+private:
+    juce::Image drawBackgroundImage();
+
+    juce::Image background;
+};
+
+// Bypass Button
+struct BypassButton : juce::Button
+{
+    BypassButton(juce::RangedAudioParameter& rap) : juce::Button("Bypass"), param(&rap)
+    {
+        setLookAndFeel(&lnf);
+    }
+    ~BypassButton()
+    {
+        setLookAndFeel(nullptr);
+    }
+
+    void paintButton(juce::Graphics& g, 
+                        bool shouldDrawButtonAsHighlighted,
+                        bool shouldDrawButtonAsDown) override;
+    juce::Rectangle<int> getButtonBounds() const;
+
+private:
+    LookAndFeel lnf;
+    juce::RangedAudioParameter* param;
+};
 
 // Custom Rotary Slider
 struct RotarySliderWithLabelBelow : juce::Slider
@@ -85,6 +120,12 @@ private:
     // access the processor object that created it.
     PoopSmearerAudioProcessor& audioProcessor;
 
+    // Background Image Component
+    PedalBackground pedalBackground;
+
+    // Add bypass switch
+    BypassButton bypassButton;
+
     // Add sliders
     RotarySliderWithLabelBelow driveSlider, levelSlider;
     RotarySliderWithLabelAbove toneSlider;
@@ -94,6 +135,7 @@ private:
     using Attachment = APVTS::SliderAttachment;
 
     Attachment driveSliderAttachment, toneSliderAttachment, levelSliderAttachment;
+    APVTS::ButtonAttachment bypassButtonAttachment;
 
     // get editor components
     std::vector<juce::Component*> getComps();

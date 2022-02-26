@@ -215,6 +215,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        "Bypass",
+        "Bypass",
+        false
+    ));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>(
         "Drive",
         "Drive",

@@ -20,4 +20,10 @@ class LookAndFeel : public juce::LookAndFeel_V4
                                     float rotaryStartAngle,
                                     float rotaryEndAngle,
                                     juce::Slider&) override;
+
+    virtual void drawButtonBackground(juce::Graphics& g,
+                                        juce::Button& button,
+                                        const juce::Colour& backgroundColour,
+                                        bool shouldDrawButtonAsHighlighted,
+                                        bool shouldDrawButtonAsDown) override;
 };

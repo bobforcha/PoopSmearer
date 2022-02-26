@@ -48,3 +48,13 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
     g.fillPath(p);
 }
+
+void LookAndFeel::drawButtonBackground(juce::Graphics& g,
+                            juce::Button& button,
+                            const juce::Colour& backgroundColour,
+                            bool shouldDrawButtonAsHighlighted,
+                            bool shouldDrawButtonAsDown)
+{
+    g.setColour(backgroundColour);
+    g.fillRoundedRectangle(button.getBounds().toFloat(), 4.5f);
+}
