@@ -14,13 +14,50 @@ PedalBackground::PedalBackground()
 {
     background = drawBackgroundImage();
     setImage(background);
+    setAlwaysOnTop(false);
+}
+
+juce::Rectangle<int> PedalBackground::getPedalArea()
+{
+    auto bounds = getLocalBounds();
+    float scaleFactor = 0.8f;
+    auto pedalBounds = juce::Rectangle<int>(bounds.getWidth() * scaleFactor,
+                                            bounds.getHeight() * scaleFactor);
+    pedalBounds.setCentre(bounds.getCentre());
+
+    return pedalBounds;
+}
+
+juce::Rectangle<int> PedalBackground::getKnobArea()
+{
+    return getPedalArea().removeFromTop(getHeight() * 0.33f);
+}
+
+juce::Rectangle<int> PedalBackground::getDriveKnobArea()
+{
+    auto knobArea = getKnobArea();
+    return knobArea.removeFromLeft(knobArea.getWidth() * 0.33f);
+}
+
+juce::Rectangle<int> PedalBackground::getLevelKnobArea()
+{
+    auto knobArea = getKnobArea();
+    return knobArea.removeFromRight(knobArea.getWidth() * 0.33f);
+}
+
+juce::Rectangle<int> PedalBackground::getToneKnobArea()
+{
+    auto knobArea = getKnobArea();
+    auto driveArea = knobArea.removeFromLeft(knobArea.getWidth() * 0.33f);
+    auto levelArea = knobArea.removeFromRight(knobArea.getWidth() * 0.5f);
+    return knobArea;
 }
 
 juce::Image PedalBackground::drawBackgroundImage()
 {
     using namespace juce;
 
-    auto bgImg = Image(Image::PixelFormat::RGB, 300, 475, false);
+    auto bgImg = Image(Image::PixelFormat::RGB, 300, 475, true);
     Graphics g(bgImg);
     g.fillAll(Colours::black);
 
@@ -69,13 +106,22 @@ void BypassButton::paintButton(juce::Graphics& g,
                                 bool shouldDrawButtonAsHighlighted,
                                 bool shouldDrawButtonAsDown)
 {
+    juce::Colour bgColor;
+
     if(shouldDrawButtonAsDown)
     {
-        getLookAndFeel().drawButtonBackground(g, *this, juce::Colours::grey, false, true);
-    }  
-    else {
-        getLookAndFeel().drawButtonBackground(g, *this, juce::Colours::silver, false, false);
+        bgColor = juce::Colours::grey;
     }
+    else
+    {
+        bgColor = juce::Colours::silver;
+    }
+
+    getLookAndFeel().drawButtonBackground(g,
+                                            *this,
+                                            bgColor,
+                                            shouldDrawButtonAsHighlighted,
+                                            shouldDrawButtonAsDown);
 }
 
 // =============================================================================
@@ -211,37 +257,34 @@ void PoopSmearerAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    using namespace juce;
     auto bounds = getLocalBounds();
+
+    pedalBackground.setBounds(bounds);
 
     float scaleFactor = 0.8f;
 
-    using namespace juce;
-    auto pedalBounds = Rectangle<float>(bounds.getWidth() * scaleFactor,
-                                        bounds.getHeight() * scaleFactor);
-    pedalBounds.setCentre(bounds.getCentreX(), bounds.getCentreY());
+    auto knobArea = pedalBackground.getKnobArea();  
+    auto driveArea = pedalBackground.getDriveKnobArea();
+    auto levelArea = pedalBackground.getLevelKnobArea();
+    auto toneArea = pedalBackground.getToneKnobArea();
 
-    auto knobArea = pedalBounds.removeFromTop(pedalBounds.getHeight() * 0.33f);
-    
-    auto driveArea = knobArea.removeFromLeft(knobArea.getWidth() * 0.33f);
-
-    auto levelArea = knobArea.removeFromRight(knobArea.getWidth() * 0.5f);
-
-    auto buttonLabelArea = Rectangle<float>(pedalBounds.getWidth() * scaleFactor,
-                                            pedalBounds.getHeight() * scaleFactor);
-    buttonLabelArea.setCentre(pedalBounds.getCentre());
+    auto buttonLabelArea = Rectangle<float>(bounds.getWidth() * scaleFactor,
+                                            bounds.getHeight() * scaleFactor);
+    buttonLabelArea.setCentre(bounds.getCentreX(), bounds.getCentreY());
 
     auto buttonLabelBottom = buttonLabelArea.removeFromBottom(buttonLabelArea.getHeight() * 0.5);
 
     auto buttonArea = Rectangle<float>(buttonLabelBottom.getWidth() * 0.9,
                                         buttonLabelBottom.getHeight() * 0.9);
     
-    buttonArea.setCentre(buttonLabelBottom.getCentre());
+    buttonArea.setCentre(buttonArea.getCentreX(), buttonLabelBottom.getCentreY());
 
-    pedalBackground.setBounds(bounds);
+    
     bypassButton.setBounds(buttonArea.toNearestInt());
-    driveSlider.setBounds(driveArea.toNearestInt());
-    levelSlider.setBounds(levelArea.toNearestInt());
-    toneSlider.setBounds(knobArea.toNearestInt());
+    driveSlider.setBounds(driveArea);
+    levelSlider.setBounds(levelArea);
+    toneSlider.setBounds(toneArea);
 }
 
 std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()

@@ -23,6 +23,14 @@ struct PedalBackground : juce::ImageComponent
     ~PedalBackground()
     {}
 
+    juce::Rectangle<int> getPedalArea();
+    juce::Rectangle<int> getKnobArea();
+    juce::Rectangle<int> getDriveKnobArea();
+    juce::Rectangle<int> getToneKnobArea();
+    juce::Rectangle<int> getLevelKnobArea();
+    juce::Rectangle<int> getButtonArea();
+    juce::Rectangle<int> getLEDArea(); 
+
 private:
     juce::Image drawBackgroundImage();
 
@@ -35,6 +43,7 @@ struct BypassButton : juce::Button
     BypassButton(juce::RangedAudioParameter& rap) : juce::Button("Bypass"), param(&rap)
     {
         setLookAndFeel(&lnf);
+        setAlwaysOnTop(true);
     }
     ~BypassButton()
     {
