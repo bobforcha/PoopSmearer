@@ -12,7 +12,9 @@
 // =============================================================================
 PedalBackground::PedalBackground()
 {
-    background = drawBackgroundImage();
+    // background = drawBackgroundImage();
+    background = juce::ImageCache::getFromMemory(BinaryData::PoopSmearerPedal_png,
+                                                    BinaryData::PoopSmearerPedal_pngSize);
     setImage(background);
     setAlwaysOnTop(false);
 }
@@ -53,52 +55,28 @@ juce::Rectangle<int> PedalBackground::getToneKnobArea()
     return knobArea;
 }
 
-juce::Image PedalBackground::drawBackgroundImage()
+juce::Rectangle<int> PedalBackground::getButtonArea()
 {
-    using namespace juce;
-
-    auto bgImg = Image(Image::PixelFormat::RGB, 300, 475, true);
-    Graphics g(bgImg);
-    g.fillAll(Colours::black);
-
-    // draw main pedal body
-    auto bounds = bgImg.getBounds();
-    float scaleFactor = 0.8f;
-    auto pedalArea = Rectangle<float>(bounds.getWidth() * scaleFactor,
-                                    bounds.getHeight() * scaleFactor);
-    pedalArea.setCentre(bounds.getCentreX(), bounds.getCentreY());
-    g.setColour(Colours::green);
-    g.fillRoundedRectangle(pedalArea, 15.f);
-
-    // draw label and button area
-    auto pedalBottomArea = pedalArea.removeFromBottom(pedalArea.getHeight() * 0.66f);
-    auto buttonLabelArea = Rectangle<float>(pedalBottomArea.getWidth() * scaleFactor,
-                                            pedalBottomArea.getHeight() * scaleFactor);
-    buttonLabelArea.setCentre(pedalBottomArea.getCentreX(),
-                                pedalBottomArea.getCentreY());
+    auto pedalArea = getPedalArea();
+    printf("pedalArea Width: %d\n", pedalArea.getWidth());
+    auto pedalBottom = pedalArea.removeFromBottom(pedalArea.getHeight() * 0.66f);
+    auto buttonLabelArea = juce::Rectangle<int>(pedalBottom.getWidth() * 0.8f,
+                                                pedalBottom.getHeight() * 0.8f);
+    buttonLabelArea.setCentre(pedalBottom.getCentre());
+    auto buttonLabelBottom = buttonLabelArea.removeFromBottom(buttonLabelArea.getHeight() * 0.5f);
+    auto buttonArea = juce::Rectangle<int>(buttonLabelBottom.getWidth() * 0.9f,
+                                            buttonLabelBottom.getHeight() * 0.9f);
+    // DEBUG stuff
+    // buttonArea.setX(buttonLabelBottom.getX() / 2.f + (buttonLabelBottom.getWidth() * 0.05f));
     
-    g.setColour(Colours::black);
-    g.fillRoundedRectangle(buttonLabelArea, 5.f);
+    // buttonArea.setY(buttonLabelBottom.getY() / 2.f + (buttonLabelBottom.getHeight() * 0.05f));
+    buttonArea.setCentre(buttonLabelBottom.getCentre());
+    // DEBUG stuff
+    printf("ButtonArea Width: %d\n", buttonArea.getWidth());
+    printf("ButtonArea Height: %d\n", buttonArea.getHeight());
+    printf("ButtonArea Center: %d, %d\n", buttonArea.getCentreX(), buttonArea.getCentreY());
 
-    // draw label
-    auto buttonLabelTop = buttonLabelArea.removeFromTop(buttonLabelArea.getHeight() * 0.5f);
-    auto pedalLabelArea = Rectangle<float>(buttonLabelTop.getWidth() * 0.9f,
-                                            buttonLabelTop.getHeight() * 0.9f);
-    pedalLabelArea.setCentre(buttonLabelTop.getCentre());
-    g.setColour(Colours::silver);
-    g.fillRoundedRectangle(pedalLabelArea, 4.5f);
-
-    g.setColour (Colours::blue);
-    g.setFont (22.0f);
-    g.drawFittedText ("Poop Smearer\nPS9", pedalLabelArea.toNearestInt(), Justification::centred, 1);
-
-    // draw bottom company tag
-    auto tagArea = pedalBottomArea.removeFromBottom(pedalBottomArea.getHeight() * 0.1f);
-    g.setColour(Colours::black);
-    g.setFont(16.0f);
-    g.drawFittedText("Bob's Plugin Bargain Bin", tagArea.toNearestInt(), Justification::centred, 1);
-
-    return bgImg;
+    return buttonArea;
 }
 
 // =============================================================================
@@ -262,29 +240,30 @@ void PoopSmearerAudioProcessorEditor::resized()
 
     pedalBackground.setBounds(bounds);
 
-    float scaleFactor = 0.8f;
-
     auto knobArea = pedalBackground.getKnobArea();  
     auto driveArea = pedalBackground.getDriveKnobArea();
     auto levelArea = pedalBackground.getLevelKnobArea();
     auto toneArea = pedalBackground.getToneKnobArea();
-
-    auto buttonLabelArea = Rectangle<float>(bounds.getWidth() * scaleFactor,
-                                            bounds.getHeight() * scaleFactor);
-    buttonLabelArea.setCentre(bounds.getCentreX(), bounds.getCentreY());
-
-    auto buttonLabelBottom = buttonLabelArea.removeFromBottom(buttonLabelArea.getHeight() * 0.5);
-
-    auto buttonArea = Rectangle<float>(buttonLabelBottom.getWidth() * 0.9,
-                                        buttonLabelBottom.getHeight() * 0.9);
+    auto buttonArea = pedalBackground.getButtonArea();
     
-    buttonArea.setCentre(buttonArea.getCentreX(), buttonLabelBottom.getCentreY());
-
-    
-    bypassButton.setBounds(buttonArea.toNearestInt());
+    bypassButton.setBounds(buttonArea);
     driveSlider.setBounds(driveArea);
     levelSlider.setBounds(levelArea);
     toneSlider.setBounds(toneArea);
+
+    // DEBUG stuff
+    if (bypassButton.isVisible())
+    {
+        printf("Button is visible\n");
+    }
+    else
+    {
+        printf("Button is not visible\n");
+    }
+
+    printf("Button Center: %d, %d\n", bypassButton.getBounds().getCentreX(), bypassButton.getBounds().getCentreY());
+    // \DEBUG
+    
 }
 
 std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()

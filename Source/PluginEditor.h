@@ -32,8 +32,6 @@ struct PedalBackground : juce::ImageComponent
     juce::Rectangle<int> getLEDArea(); 
 
 private:
-    juce::Image drawBackgroundImage();
-
     juce::Image background;
 };
 
