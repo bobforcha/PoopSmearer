@@ -65,16 +65,9 @@ juce::Rectangle<int> PedalBackground::getButtonArea()
     buttonLabelArea.setCentre(pedalBottom.getCentre());
     auto buttonLabelBottom = buttonLabelArea.removeFromBottom(buttonLabelArea.getHeight() * 0.5f);
     auto buttonArea = juce::Rectangle<int>(buttonLabelBottom.getWidth() * 0.9f,
-                                            buttonLabelBottom.getHeight() * 0.9f);
-    // DEBUG stuff
-    // buttonArea.setX(buttonLabelBottom.getX() / 2.f + (buttonLabelBottom.getWidth() * 0.05f));
-    
-    // buttonArea.setY(buttonLabelBottom.getY() / 2.f + (buttonLabelBottom.getHeight() * 0.05f));
+                                            buttonLabelBottom.getHeight() * 0.85f);
     buttonArea.setCentre(buttonLabelBottom.getCentre());
-    // DEBUG stuff
-    printf("ButtonArea Width: %d\n", buttonArea.getWidth());
-    printf("ButtonArea Height: %d\n", buttonArea.getHeight());
-    printf("ButtonArea Center: %d, %d\n", buttonArea.getCentreX(), buttonArea.getCentreY());
+    buttonArea.setBottom(buttonLabelBottom.getBottom() - (buttonLabelBottom.getHeight() * 0.05f));
 
     return buttonArea;
 }
@@ -92,7 +85,7 @@ void BypassButton::paintButton(juce::Graphics& g,
     }
     else
     {
-        bgColor = juce::Colours::silver;
+        bgColor = juce::Colour(204, 204, 204);
     }
 
     getLookAndFeel().drawButtonBackground(g,

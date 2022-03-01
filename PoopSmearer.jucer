@@ -7,7 +7,7 @@
               pluginChannelConfigs="{1, 1}">
   <MAINGROUP id="scTJvt" name="PoopSmearer">
     <GROUP id="{90082A7C-7677-F7A0-B27B-3F5EA9AC6AAA}" name="Resources">
-      <FILE id="j8byTf" name="PoopSmearerPedal.png" compile="0" resource="1"
+      <FILE id="LB0lgW" name="PoopSmearerPedal.png" compile="0" resource="1"
             file="Resources/PoopSmearerPedal.png"/>
     </GROUP>
     <GROUP id="{C0D93BD4-DF7B-6F16-6699-B04BD5E1DF94}" name="Source">

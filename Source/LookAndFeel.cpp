@@ -56,5 +56,5 @@ void LookAndFeel::drawButtonBackground(juce::Graphics& g,
                             bool shouldDrawButtonAsDown)
 {
     g.setColour(backgroundColour);
-    g.fillRoundedRectangle(button.getBounds().toFloat(), 4.5f);
+    g.fillRoundedRectangle(button.getLocalBounds().toFloat(), 8.f);
 }
