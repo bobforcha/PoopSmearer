@@ -58,7 +58,6 @@ juce::Rectangle<int> PedalBackground::getToneKnobArea()
 juce::Rectangle<int> PedalBackground::getButtonArea()
 {
     auto pedalArea = getPedalArea();
-    printf("pedalArea Width: %d\n", pedalArea.getWidth());
     auto pedalBottom = pedalArea.removeFromBottom(pedalArea.getHeight() * 0.66f);
     auto buttonLabelArea = juce::Rectangle<int>(pedalBottom.getWidth() * 0.8f,
                                                 pedalBottom.getHeight() * 0.8f);
@@ -192,11 +191,10 @@ juce::Rectangle<int> RotarySliderWithLabelAbove::getLabelBounds() const
 //==============================================================================
 PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-    bypassButton(*audioProcessor.apvts.getParameter("Bypass")),
+    bypassButton(),
     driveSlider(*audioProcessor.apvts.getParameter("Drive")),
     toneSlider(*audioProcessor.apvts.getParameter("Tone")),
     levelSlider(*audioProcessor.apvts.getParameter("Level")),
-    bypassButtonAttachment(audioProcessor.apvts, "Bypass", bypassButton),
     driveSliderAttachment(audioProcessor.apvts, "Drive", driveSlider),
     toneSliderAttachment(audioProcessor.apvts, "Tone", toneSlider),
     levelSliderAttachment(audioProcessor.apvts, "Level", levelSlider)
@@ -208,6 +206,8 @@ PoopSmearerAudioProcessorEditor::PoopSmearerAudioProcessorEditor (PoopSmearerAud
     {
         addAndMakeVisible(comp);
     }
+
+    bypassButton.onClick = [this] { toggleBypass(); };
 
     setSize (300, 475);
 }
@@ -243,22 +243,9 @@ void PoopSmearerAudioProcessorEditor::resized()
     driveSlider.setBounds(driveArea);
     levelSlider.setBounds(levelArea);
     toneSlider.setBounds(toneArea);
-
-    // DEBUG stuff
-    if (bypassButton.isVisible())
-    {
-        printf("Button is visible\n");
-    }
-    else
-    {
-        printf("Button is not visible\n");
-    }
-
-    printf("Button Center: %d, %d\n", bypassButton.getBounds().getCentreX(), bypassButton.getBounds().getCentreY());
-    // \DEBUG
-    
 }
 
+// =============================================================================
 std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()
 {
     return
@@ -269,4 +256,20 @@ std::vector<juce::Component*> PoopSmearerAudioProcessorEditor::getComps()
         &toneSlider,
         &levelSlider
     };
+}
+
+// =============================================================================
+void PoopSmearerAudioProcessorEditor::toggleBypass()
+{
+    auto bypassParam = audioProcessor.apvts.getParameter("Bypass");
+    bool bypass = false;
+
+    if(bypassParam->getValue() >= 0.5f)
+    {
+        bypass = true;
+    }
+
+    bypass = !bypass;
+
+    bypassParam->setValueNotifyingHost(bypass);
 }

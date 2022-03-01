@@ -254,6 +254,7 @@ ChainSettings ShitClipper::getChainSettings(juce::AudioProcessorValueTreeState& 
 {
     ChainSettings settings;
 
+    settings.isBypassed = apvts.getRawParameterValue("Bypass")->load();
     settings.drive = apvts.getRawParameterValue("Drive")->load();
     settings.tone = apvts.getRawParameterValue("Tone")->load();
     settings.level = apvts.getRawParameterValue("Level")->load();

@@ -38,7 +38,7 @@ private:
 // Bypass Button
 struct BypassButton : juce::Button
 {
-    BypassButton(juce::RangedAudioParameter& rap) : juce::Button("Bypass"), param(&rap)
+    BypassButton() : juce::Button("Bypass")
     {
         setLookAndFeel(&lnf);
         setAlwaysOnTop(true);
@@ -55,7 +55,6 @@ struct BypassButton : juce::Button
 
 private:
     LookAndFeel lnf;
-    juce::RangedAudioParameter* param;
 };
 
 // Custom Rotary Slider
@@ -122,6 +121,8 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void toggleBypass();
+
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -142,7 +143,6 @@ private:
     using Attachment = APVTS::SliderAttachment;
 
     Attachment driveSliderAttachment, toneSliderAttachment, levelSliderAttachment;
-    APVTS::ButtonAttachment bypassButtonAttachment;
 
     // get editor components
     std::vector<juce::Component*> getComps();
